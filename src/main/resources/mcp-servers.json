@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "smartDocMCPServer": {
+      "command": "java",
+      "args": ["-jar", "/chemin/vers/mcp-server.jar"],
+      "env": {}
+    }
+  }
+}
