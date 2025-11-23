@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.miniprojet.smartdoc.services.RagService;
@@ -13,31 +14,39 @@ import com.miniprojet.smartdoc.services.RagService;
 public class ChatController {
 
     private final RagService ragService;
-    private final List<String> history = new ArrayList<>(); // stocke les messages
+    private final List<String> history = new ArrayList<>(); // historique des messages
 
     public ChatController(RagService ragService) {
         this.ragService = ragService;
     }
 
+    // ------------------- Poser une question -------------------
     @PostMapping("/query")
-    public String chat(@RequestBody Map<String, String> payload) {
-        String question = payload.get("question"); // correspond au frontend
+    public ResponseEntity<String> chat(@RequestBody Map<String, String> payload) {
+        String question = payload.get("question");
+
+        if (question == null || question.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Veuillez fournir une question valide.");
+        }
+
         String answer = ragService.query(question);
 
         history.add("User: " + question);
         history.add("Agent: " + answer);
 
-        return answer;
+        return ResponseEntity.ok(answer);
     }
 
-
+    // ------------------- Récupérer l'historique -------------------
     @GetMapping("/history")
-    public List<String> getHistory() {
-        return history;
+    public ResponseEntity<List<String>> getHistory() {
+        return ResponseEntity.ok(history);
     }
 
+    // ------------------- Nouvelle conversation -------------------
     @PostMapping("/new")
-    public void newConversation() {
+    public ResponseEntity<Void> newConversation() {
         history.clear(); // effacer l'historique
+        return ResponseEntity.ok().build();
     }
 }

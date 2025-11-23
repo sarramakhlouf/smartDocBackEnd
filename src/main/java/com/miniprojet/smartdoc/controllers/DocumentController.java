@@ -12,6 +12,7 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,7 +22,7 @@ import java.nio.file.Paths;
 public class DocumentController {
 
     private final RagService ragService;
-    private final String uploadDir = "uploads/"; // dossier de stockage
+    private final String uploadDir = "uploads"; // dossier de stockage
 
     public DocumentController(RagService ragService) {
         this.ragService = ragService;
@@ -45,8 +46,6 @@ public class DocumentController {
 
         try {
             Path uploadPath = getUploadPath();
-
-            // Sécuriser le nom du fichier pour éviter ../
             String safeFilename = Paths.get(file.getOriginalFilename()).getFileName().toString();
             Path filePath = uploadPath.resolve(safeFilename);
 
@@ -57,7 +56,7 @@ public class DocumentController {
             try (PDDocument document = PDDocument.load(filePath.toFile())) {
                 PDFTextStripper pdfStripper = new PDFTextStripper();
                 String text = pdfStripper.getText(document);
-                ragService.indexDocument(safeFilename, text);
+                ragService.indexDocument(safeFilename, text); // indexation FAISS ou mémoire
             }
 
             return ResponseEntity.ok("PDF sauvegardé et indexé pour RAG");
@@ -77,7 +76,6 @@ public class DocumentController {
 
         try {
             Path uploadPath = getUploadPath();
-
             String safeFilename = Paths.get(file.getOriginalFilename()).getFileName().toString();
             Path filePath = uploadPath.resolve(safeFilename);
 
@@ -85,7 +83,7 @@ public class DocumentController {
             System.out.println("Fichier CSV sauvegardé : " + filePath.toAbsolutePath());
 
             // Lire contenu CSV pour RAG
-            String text = new String(Files.readAllBytes(filePath));
+            String text = Files.readString(filePath, StandardCharsets.UTF_8);
             ragService.indexDocument(safeFilename, text);
 
             return ResponseEntity.ok("CSV sauvegardé et indexé pour RAG");
@@ -129,8 +127,8 @@ public class DocumentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-    
- // ------------------- Supprimer un fichier -------------------
+
+    // ------------------- Supprimer un fichier -------------------
     @DeleteMapping("/delete/{filename}")
     public ResponseEntity<String> deleteFile(@PathVariable String filename) {
         try {
