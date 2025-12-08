@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 public class DocumentController {
 
     private final RagService ragService;
-    private final String uploadDir = "uploads"; // dossier de stockage
+    private final String uploadDir = "uploads";
 
     public DocumentController(RagService ragService) {
         this.ragService = ragService;
@@ -37,7 +37,7 @@ public class DocumentController {
         return uploadPath;
     }
 
-    // ------------------- Upload PDF -------------------
+
     @PostMapping(value = "/upload/pdf", consumes = "multipart/form-data")
     public ResponseEntity<String> uploadPdf(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) return ResponseEntity.badRequest().body("Le fichier PDF est vide");
@@ -56,7 +56,7 @@ public class DocumentController {
             try (PDDocument document = PDDocument.load(filePath.toFile())) {
                 PDFTextStripper pdfStripper = new PDFTextStripper();
                 String text = pdfStripper.getText(document);
-                ragService.indexDocument(safeFilename, text); // indexation FAISS ou mémoire
+                ragService.indexDocument(safeFilename, text); 
             }
 
             return ResponseEntity.ok("PDF sauvegardé et indexé pour RAG");
@@ -67,7 +67,6 @@ public class DocumentController {
         }
     }
 
-    // ------------------- Upload CSV -------------------
     @PostMapping(value = "/upload/csv", consumes = "multipart/form-data")
     public ResponseEntity<String> uploadCsv(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) return ResponseEntity.badRequest().body("Le fichier CSV est vide");
@@ -82,7 +81,6 @@ public class DocumentController {
             file.transferTo(filePath.toFile());
             System.out.println("Fichier CSV sauvegardé : " + filePath.toAbsolutePath());
 
-            // Lire contenu CSV pour RAG
             String text = Files.readString(filePath, StandardCharsets.UTF_8);
             ragService.indexDocument(safeFilename, text);
 
@@ -94,7 +92,6 @@ public class DocumentController {
         }
     }
 
-    // ------------------- Lister les fichiers -------------------
     @GetMapping("/list")
     public ResponseEntity<String[]> listFiles() {
         try {
@@ -109,7 +106,6 @@ public class DocumentController {
         }
     }
 
-    // ------------------- Télécharger un fichier -------------------
     @GetMapping("/download/{filename}")
     public ResponseEntity<byte[]> downloadFile(@PathVariable String filename) {
         try {
@@ -128,7 +124,6 @@ public class DocumentController {
         }
     }
 
-    // ------------------- Supprimer un fichier -------------------
     @DeleteMapping("/delete/{filename}")
     public ResponseEntity<String> deleteFile(@PathVariable String filename) {
         try {

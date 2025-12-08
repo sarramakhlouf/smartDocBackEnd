@@ -17,7 +17,6 @@ public class StatsService {
 
     public Map<String, Double> calculateStats(List<Double> numbers) {
         Map<String, Object> payload = Map.of("numbers", numbers);
-        // Appel REST vers le MCP Server Tool
         return restTemplate.postForObject(mcpUrl + "/tools/calculateStats", payload, Map.class);
     }
 

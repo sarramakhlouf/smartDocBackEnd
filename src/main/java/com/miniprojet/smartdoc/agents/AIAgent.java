@@ -11,25 +11,22 @@ public class AIAgent {
 
     private final ChatClient chatClient;
 
-    // Spring injecte automatiquement les beans
     public AIAgent(ChatClient.Builder chatClientBuilder,
                    ToolCallbackProvider toolCallbackProvider,
                    ChatMemory chatMemory) {
 
-        // Configure le ChatClient avec les outils et mémoire
         this.chatClient = chatClientBuilder
-                .defaultToolCallbacks(toolCallbackProvider)        // outils MCP
-                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build()) // mémoire
+                .defaultToolCallbacks(toolCallbackProvider)      
+                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
                 .defaultSystem("Vous êtes un assistant utile. Répondez toujours en français aux questions de l'utilisateur.")
                 .build();
     }
 
-    // Méthode pour poser une question à l'agent
     public String onQuery(String query) {
         if (query == null || query.trim().isEmpty()) {
             return "Veuillez fournir une question spécifique.";
         }
-        // Préfixe pour forcer la réponse en français
+
         String queryFR = "Réponds en français : " + query;
 
         return chatClient.prompt()

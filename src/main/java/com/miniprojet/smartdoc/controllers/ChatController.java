@@ -14,13 +14,12 @@ import com.miniprojet.smartdoc.services.RagService;
 public class ChatController {
 
     private final RagService ragService;
-    private final List<String> history = new ArrayList<>(); // historique des messages
+    private final List<String> history = new ArrayList<>();
 
     public ChatController(RagService ragService) {
         this.ragService = ragService;
     }
 
-    // ------------------- Poser une question -------------------
     @PostMapping("/query")
     public ResponseEntity<String> chat(@RequestBody Map<String, String> payload) {
         String question = payload.get("question");
@@ -37,16 +36,14 @@ public class ChatController {
         return ResponseEntity.ok(answer);
     }
 
-    // ------------------- Récupérer l'historique -------------------
     @GetMapping("/history")
     public ResponseEntity<List<String>> getHistory() {
         return ResponseEntity.ok(history);
     }
 
-    // ------------------- Nouvelle conversation -------------------
     @PostMapping("/new")
     public ResponseEntity<Void> newConversation() {
-        history.clear(); // effacer l'historique
+        history.clear();
         return ResponseEntity.ok().build();
     }
 }
